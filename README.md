@@ -84,11 +84,14 @@ The actual on-disk persistence is handled as a bare Git repo via Grit. It contai
 ```
 <root>
      _schema
+            /<id>.json
      _objects
+             /<id>
+                  /<key>.json
 ```
 
 Each schema is stored as a JSON file (`<id>.json`) in the `_schema` directory.
-Each object created with a given schema is stored as a JSON file (`<key>.json`) in the `_objects` directory.
+Each object created with a given schema is stored as a JSON file (`<key>.json`) in the `_objects/<id>` directory.
 
 The reason for storing as a bare repo is to eliminate the temptation and confusion around it being a working repo. You could check out the repo elsewhere and make changes but this currently would bypass all validation (of both schemas and created objects).
 
