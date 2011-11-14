@@ -3,6 +3,7 @@ module Ark
     REQUIRED_KEYS = ["id","attributes"]
     OPTIONAL_KEYS = ["validations", "key"]
     VALIDATIONS = ["required", "unique", "member"]
+    BASEPATH = "_schema"
 
     # A valid schema looks something like this:
     # {"id":"host",
@@ -19,18 +20,28 @@ module Ark
     # This says that a Host must have a unique name
     # and that status must be one of 'status'
     # If no key is defined, an attribute 'name' must be defined.
-    attr_accessor :definition, :errors
+    attr_accessor :errors, :definition
+    attr_reader :db, :parsed_schema
 
-    def initialize(schema)
-      @definition = schema
+    def initialize
+      @db = Ark::Repo.db || Ark::Repo.connect
     end
 
     def save
-      self.valid?
+      self.valid? ? @db.set("#{BASEPATH}/#{@parsed_schema['id']}.json", @definition, "Adding schema - #{@parsed_schema['id']}") : false
     end
 
     def self.add(definition)
-      parsed_schema = validate_schema(definition)
+      s = self.new
+      s.definition = definition
+      s.save
+    end
+
+    def self.load(schema_name)
+      s = self.new
+      data = s.db.get("#{BASEPATH}/#{schema_name}.json")
+      s.definition = data
+      s.valid? ? create_class(s.parsed_schema) : false
     end
 
     def valid?
@@ -38,11 +49,20 @@ module Ark
     end
 
     private
-    def validate_schema
+    def self.create_class(schema)
+      klass_name = schema['id'].capitalize
+      klass = Ark.const_set(klass_name, Class.new(Ark::Record))
+      klass.class_eval do
+        attr_accessor *schema['attributes']
+      end
+    end
+
+    def validate_schema(schema_def=self.definition)
       errors = []
       begin
         # Is it valid JSON?
-        schema = ::JSON.parse(self.definition)
+        schema = ::JSON.parse(schema_def)
+        @parsed_schema = schema
 
         # Some shortcuts
         keys = schema.keys
@@ -89,7 +109,7 @@ module Ark
         end
       rescue NoMethodError
         # bad form, I know..
-        errors
+        @errors = errors
       rescue JSON::ParserError
         errors << [:schema, :not_valid_json]
       end

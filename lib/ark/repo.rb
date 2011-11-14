@@ -1,15 +1,30 @@
 module Ark
   class Repo
+   
+    class << self
+      def db=(db)
+        @db = db
+      end
+
+      def db
+        @db
+      end
+
+      def connect(path='/tmp/ark.git')
+        self.db = self.new(:repo => path)
+      end
+    end
 
     def initialize(options = {})
       @options = options
-      Grit::Repo.init_bare_or_open(path)
+      ::Grit::Repo.init_bare_or_open(path)
     end
 
     def set(key, value, message = nil)
       message ||= "set '#{key}'"
       save(message) do |index|
         index.add(key, value)
+        true
       end
     end
 
@@ -27,6 +42,7 @@ module Ark
     end
 
     def clear(message = nil)
+      # This is not working. Need to investigate
       message ||= "purged repo"
       save(message) do |index|
         if tree = index.current_tree
@@ -42,11 +58,20 @@ module Ark
     end
 
     def keys
-      head.commit.tree.contents.map {|blob| blob.name }
+      begin
+        head.commit.tree.contents.map {|blob| blob.name }
+      rescue NoMethodError
+        # Repo isn't populated yet
+        []
+      end
     end
 
     def git
-      @git ||= Grit::Repo.new(path)
+      @git ||= ::Grit::Repo.new(path)
+    end
+
+    def inspect
+      %Q{#<Ark::Repo "path=#{path}">}
     end
 
     private
