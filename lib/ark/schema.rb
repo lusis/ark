@@ -49,44 +49,52 @@ module Ark
         schema_id = schema['id']
         attributes = schema['attributes']
         validations = schema['validations']
-        key = schema['key'] || schema['attributes']['name']
+        key = schema['key']
 
         # Are all the required keys there?
-        errors << [:schema, :missing_required_keys] if keys.sort != REQUIRED_KEYS.sort
+        REQUIRED_KEYS.each do |key|
+          errors << [:schema, "missing_required_key_#{key}".to_sym] unless keys.member?(key)
+        end
 
         # Is id a string?
         errors << [:id, :not_string] if schema_id.class != String
 
         # Do we have a key?
-        errors << [:primary_key, :not_defined] if key.nil?
+        errors << [:primary_key, :not_defined] if key.nil? && attributes.member?('name').nil?
 
         # If we have validations
         # Are they ones we understand?
         unless validations.nil?
-          validations.each do |validation, attrs|
+          validations.each do |type, values|
             # Match against known validation types
-            errors << [validation.to_sym, :unknown_validation_type] unless VALIDATIONS.member?(validation)
-            if validation == "member"
-              attrs.each do |attr, opt|
-                if opt.class != Array
-                  errors << [attr.to_sym, :member_must_be_array]
+            errors << [type.to_sym, :unknown_validation_type] unless VALIDATIONS.member?(type)
+            if type == "member"
+              values.each do |member_key, member_opts|
+                if member_opts.class != Array
+                  errors << [:member, :member_must_be_array]
                 else
-                  errors << [attr.to_sym, :unknown_attribute_in_validation] unless attributes.member?(attr)
+                  errors << [:member, :unknown_attribute_in_validation] unless attributes.member?(member_key)
                 end
               end
             else
-              if attrs.class != Array
-                errors << [attr.to_sym, "#{validation}_must_be_array".to_sym]
+              if validations[type].class != Array
+                errors << [type.to_sym, "#{type}_must_be_array".to_sym]
               else
-                errors << [attr.to_sym, :unknown_attribute_in_validation] unless attributes.member?(attr)
+                validations[type].each do |attr|
+                  errors << [type.to_sym, :unknown_attribute_in_validation] unless attributes.member?(attr)
+                end
               end
             end
           end
         end
+      rescue NoMethodError
+        # bad form, I know..
+        errors
       rescue JSON::ParserError
-        @errors = [:schema, :not_valid_json]
+        errors << [:schema, :not_valid_json]
       end
-      @errors << errors
+      @errors = errors
+      errors.size > 0 ? false : true
     end
 
   end

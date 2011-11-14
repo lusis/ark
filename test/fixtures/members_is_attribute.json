@@ -1,0 +1,7 @@
+{"id":"host",
+  "attributes":["name","status"],
+  "validations":{
+    "member":{"foobar":["up","down","pending"]}
+  }
+}
+

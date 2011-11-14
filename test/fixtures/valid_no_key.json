@@ -1,8 +1,5 @@
-require 'json'
-require 'ark'
-require 'ark/schema'
-@j =<<EOF
-{"id":"host",
+{
+  "id":"host",
   "attributes":["name","status"],
   "validations":{
     "required":["name"],
@@ -12,4 +9,3 @@ require 'ark/schema'
     }
   }
 }
-EOF

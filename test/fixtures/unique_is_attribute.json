@@ -1,0 +1,8 @@
+{"id":"host",
+  "attributes":["name"],
+  "validations":{
+    "unique":["foobar"]
+  }
+}
+
+

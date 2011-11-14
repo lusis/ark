@@ -1,0 +1,12 @@
+{
+  "id":"host",
+  "key":"hostname",
+  "attributes":["name","status"],
+  "validations":{
+    "required":["name"],
+    "unique":["name"],
+    "member":{
+      "status":["up","down","pending"]
+    }
+  }
+}

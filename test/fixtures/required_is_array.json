@@ -1,0 +1,6 @@
+{"id":"host",
+  "attributes":["name"],
+  "validations":{
+    "required":"name"
+  }
+}
