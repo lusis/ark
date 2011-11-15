@@ -1,6 +1,6 @@
 module Ark
   class Schema
-    include Ark::SchemaValidations
+    include Ark::Validations::Schema
 
     attr_accessor :errors, :definition
     attr_reader :db, :parsed_schema
@@ -13,16 +13,10 @@ module Ark
         s.save
       end
 
-      def load(schema_name)
-        s = self.new
-        data = s.db.get("#{BASEPATH}/#{schema_name}.json")
-        s.definition = data
-        s.valid? ? create_class(s.parsed_schema) : false
-      end
-
       def basepath
         "_schema"
       end
+
     end
 
     def initialize
@@ -35,18 +29,9 @@ module Ark
 
     def save
       if valid?
-        @db.set("#{basepath}/#{@parsed_schema['id']}.json", @definition, "Adding schema - #{@parsed_schema['id']}")
+        @db.set("#{self.class.basepath}/#{@parsed_schema['id']}.json", @definition, "Adding schema - #{@parsed_schema['id']}")
       else
         false
-      end
-    end
-
-    private
-    def self.create_class(schema)
-      klass_name = schema['id'].capitalize
-      klass = Ark.const_set(klass_name, Class.new(Ark::Record))
-      klass.class_eval do
-        attr_accessor *schema['attributes']
       end
     end
 
