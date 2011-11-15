@@ -48,6 +48,8 @@ class Host
 
 end
 ```
+## RecordCollection
+This doesn't even exist yet but I need to do it.
 
 ## Repo
 I'm not entirely happy with how this is API works but it's fine for now
