@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["John E. Vincent"]
   gem.email         = ["lusis.org+github.com@gmail.com"]
   gem.description   = %q{Special purpose data store built on Git}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.summary       = ""
   gem.homepage      = "https://github.com/lusis/ark"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
