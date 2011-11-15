@@ -29,7 +29,7 @@ however you might want to use a class name different from the schema name:
 ```ruby
 class MyHost
   include Ark::Record
-  real_type "host"
+  validates_as :host
 end
 # this should give validate you against the `host` schema
 ```
