@@ -46,7 +46,7 @@ module Ark
 
     private
     def load_schema(name)
-      @definition = @db.get("#{self.class.basepath}/#{name}.json")
+      @definition = @db.get("#{self.class.basepath}/#{name}.json").gsub(/\n|\s+/,'')
       @definition.nil? ? @parsed_schema=nil : @parsed_schema=::JSON.parse(@definition)
     end
   end

@@ -7,7 +7,7 @@ module Ark
       @record_type = opts[:record_type] || self.class.record_type || self.class.to_s.gsub(/^.*::/, '').downcase
       @schema = Ark::Schema[@record_type] || Ark::Schema.new
       unless @schema.parsed_schema.nil?
-        #load attributes as keys
+        @schema.parsed_schema['attributes'].each {|a| self.class.send :attr_accessor, a}
       end
     end
 
