@@ -13,14 +13,23 @@ module Ark
         s.save
       end
 
+      def [](key)
+        self.load(key)
+      end
+
+      def load(key)
+        self.new(key)
+      end
+
       def basepath
         "_schema"
       end
 
     end
 
-    def initialize
+    def initialize(schema_name=nil)
       @db = Ark::Repo.db || Ark::Repo.connect
+      load_schema(schema_name) if schema_name
     end
 
     def valid?
@@ -35,5 +44,10 @@ module Ark
       end
     end
 
+    private
+    def load_schema(name)
+      @definition = @db.get("#{self.class.basepath}/#{name}.json")
+      @definition.nil? ? @parsed_schema=nil : @parsed_schema=::JSON.parse(@definition)
+    end
   end
 end
