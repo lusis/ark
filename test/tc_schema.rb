@@ -65,10 +65,4 @@ class TestSchema < Test::Unit::TestCase
     assert_equal(expected_errors, s.errors, "Error should not be empty")
   end
 
-  def test_save_schema
-    json = File.open("#{FIXTURE_PATH}/valid_no_key.json", 'r') {|f| f.read}
-    s = Ark::Schema.add(json)
-    assert_equal(false,s.nil?)
-  end
-
 end

@@ -3,7 +3,7 @@ module Ark
     include Ark::Validations::Schema
 
     attr_accessor :errors, :definition
-    attr_reader :db, :parsed_schema
+    attr_reader :db, :parsed_schema, :version
 
     class << self
 
@@ -38,7 +38,9 @@ module Ark
 
     def save
       if valid?
-        @db.set("#{self.class.basepath}/#{@parsed_schema['id']}.json", @definition, "Adding schema - #{@parsed_schema['id']}")
+        commit = @db.set("#{self.class.basepath}/#{@parsed_schema['id']}.json", @definition, "Adding schema - #{@parsed_schema['id']}")
+        self.instance_variable_set "@version", commit
+        commit
       else
         false
       end
