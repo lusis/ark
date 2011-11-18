@@ -1,5 +1,15 @@
 class TestSchema < Test::Unit::TestCase
   FIXTURE_PATH = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))
+  FIXTURE_PATH = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))
+  DB_PATH = "#{FIXTURE_PATH}/#{File.basename(__FILE__)}.git"
+
+  def setup
+    @db = Ark::Repo.connect(path=DB_PATH)
+  end
+
+  def teardown
+    FileUtils.remove_dir(DB_PATH, true)
+  end
 
   def test_not_json
     expected_errors = [[:schema, :not_valid_json]]
@@ -53,6 +63,12 @@ class TestSchema < Test::Unit::TestCase
     s.definition = json
     assert_equal(false, s.valid?, "Schema should be invalid")
     assert_equal(expected_errors, s.errors, "Error should not be empty")
+  end
+
+  def test_save_schema
+    json = File.open("#{FIXTURE_PATH}/valid_no_key.json", 'r') {|f| f.read}
+    s = Ark::Schema.add(json)
+    assert_equal(false,s.nil?)
   end
 
 end
