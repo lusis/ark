@@ -60,6 +60,8 @@ module Ark::Validations::Schema
       @errors = errors
     rescue JSON::ParserError
       errors << [:schema, :not_valid_json]
+    rescue TypeError
+      errors << [:schema, :not_valid_json]
     end
     @errors = errors
     errors.size > 0 ? false : true

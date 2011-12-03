@@ -1,5 +1,6 @@
 require "json"
 require "grit"
+require 'ark/helpers'
 require "ark/exceptions"
 require "ark/version"
 require 'ark/validations'
